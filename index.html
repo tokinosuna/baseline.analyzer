@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Baseline Analyzer - Instantly Analyze Web Feature Support</title>
-  <meta name="description" content="An intelligent tool to analyze your CSS and JavaScript code snippets for Web Platform Baseline support. Check feature compatibility across modern browsers in seconds.">
+  <title>Baseline Checker - Instantly Analyze Web Feature Support</title>
+  <meta name="description" content="An intelligent tool to analyze your CSS and JavaScript code snippets for Web Platform Baseline support, complete with detailed browser compatibility data.">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,29 +19,30 @@
     }
     
     body.theme-default {
-      --bg-gradient: linear-gradient(135deg, #ffafbd, #ffc3a0, #c3a0ff, #a0d2ff); --text-color: #f0f0f0; --card-bg: rgba(255, 255, 255, 0.15);
-      --border-color: rgba(255, 255, 255, 0.3); --blur-strength: 12px; --primary-color: #a29bfe;
+      --bg-gradient: linear-gradient(135deg, #ffafbd, #ffc3a0, #c3a0ff, #a0d2ff); --text-color: #333; --card-bg: rgba(255, 255, 255, 0.4);
+      --border-color: rgba(255, 255, 255, 0.6); --blur-strength: 12px; --primary-color: #a29bfe; --text-light: #f0f0f0;
       --shadow-color: rgba(31, 38, 135, 0.2); --button-radius: 50px; --card-radius: 20px; --font-family: var(--font-main);
     }
     body.theme-night {
       --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364); --text-color: #e0e0e0; --card-bg: rgba(0, 0, 0, 0.3);
-      --border-color: rgba(255, 255, 255, 0.2); --blur-strength: 10px; --primary-color: #8854d0;
+      --border-color: rgba(255, 255, 255, 0.2); --blur-strength: 10px; --primary-color: #8854d0; --text-light: #e0e0e0;
       --shadow-color: rgba(0, 0, 0, 0.5); --button-radius: 50px; --card-radius: 20px; --font-family: var(--font-main);
     }
     body.theme-colorblind {
       --bg-gradient: #f0f0f0; --text-color: #1a1a1a; --card-bg: #ffffff; --border-color: #000000; --blur-strength: 0px;
-      --primary-color: #005fcc; --shadow-color: rgba(0, 0, 0, 0.3); --button-radius: 8px; --card-radius: 8px; --font-family: var(--font-main);
+      --primary-color: #005fcc; --text-light: #f0f0f0; --shadow-color: rgba(0, 0, 0, 0.3); --button-radius: 8px; --card-radius: 8px; --font-family: var(--font-main);
     }
     body.theme-y2k {
       --bg-gradient: #000; --text-color: #00ff00; --card-bg: rgba(0, 20, 0, 0.8); --border-color: #00ff00; --blur-strength: 0px;
-      --primary-color: #ff00ff; --shadow-color: rgba(0, 255, 0, 0.3); --button-radius: 0; --card-radius: 0; --font-family: var(--font-pixel);
+      --primary-color: #ff00ff; --text-light: #fff; --shadow-color: rgba(0, 255, 0, 0.3); --button-radius: 0; --card-radius: 0; --font-family: var(--font-pixel);
       text-shadow: 0 0 5px var(--text-color);
     }
 
     body {
       font-family: var(--font-family); margin: 0; color: var(--text-color); display: flex; justify-content: center;
-      align-items: center; min-height: 100vh; overflow: hidden; background: var(--bg-gradient);
+      align-items: flex-start; min-height: 100vh; overflow-y: auto; background: var(--bg-gradient);
       background-size: 400% 400%; animation: dreamyGradient 15s ease infinite; transition: background var(--transition-speed), color var(--transition-speed);
+      padding-top: 5vh; padding-bottom: 5vh;
     }
     body.large-text { font-size: 18px; }
     @keyframes dreamyGradient { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
@@ -56,7 +57,7 @@
     textarea {
       width: 100%; height: 200px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color);
       border-radius: calc(var(--card-radius) / 2); padding: 1rem; font-family: monospace; font-size: 1rem;
-      color: var(--text-color); resize: vertical; box-sizing: border-box; margin-bottom: 1rem; transition: all var(--transition-speed);
+      color: var(--text-light); resize: vertical; box-sizing: border-box; margin-bottom: 1rem; transition: all var(--transition-speed);
     }
     textarea:focus { outline: 2px solid var(--primary-color); }
     button {
@@ -66,68 +67,57 @@
     }
     button:hover { transform: translateY(-2px); }
     button:disabled { background: #555; cursor: not-allowed; }
-    .result-item {
-      background: rgba(0,0,0,0.2); border-radius: 8px; padding: 1rem; margin-bottom: 0.5rem;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .feature-name { font-weight: 700; font-family: monospace; }
-    .status-badge { padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.9rem; font-weight: 700; color: white; }
-    .status-widely { background: #2ecc71; } .status-newly { background: #f1c40f; } .status-limited { background: #e74c3c; } .status-unknown { background: #95a5a6; }
+    
+    #results { margin-top: 2rem; }
 
-    /* --- Settings Panel --- */
+    /* --- ENHANCED RESULT ITEM STYLES --- */
+    .result-item {
+      background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 0.75rem;
+      text-align: left; transition: all 0.2s ease-in-out;
+    }
+    .result-summary {
+      padding: 1rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer;
+    }
+    .result-summary:hover { background: rgba(0,0,0,0.1); }
+    .feature-name { font-weight: 700; font-family: monospace; }
+    .status-badge { padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.9rem; font-weight: 700; color: white; flex-shrink: 0; margin-left: 1rem; }
+    .status-widely { background: #2ecc71; } .status-newly { background: #f1c40f; } .status-limited { background: #e74c3c; } .status-unknown { background: #95a5a6; }
+    .result-details {
+      max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+      border-top: 1px solid transparent; padding: 0 1rem;
+    }
+    .result-item.active .result-details {
+      max-height: 300px; /* Adjust as needed */
+      padding: 1rem;
+      border-top: 1px solid var(--border-color);
+    }
+    .detail-row { display: flex; align-items: center; margin-bottom: 0.75rem; font-size: 0.9rem; }
+    .detail-label { font-weight: bold; width: 150px; flex-shrink: 0; }
+    .detail-content a { color: var(--primary-color); text-decoration: none; }
+    .detail-content a:hover { text-decoration: underline; }
+    .browser-support-grid { display: flex; gap: 1rem; }
+    .browser-icon { display: flex; flex-direction: column; align-items: center; font-size: 0.8rem; }
+    .browser-icon img { width: 32px; height: 32px; margin-bottom: 4px; }
+    /* Make supported icons vibrant, unsupported ones gray */
+    .browser-icon.supported img { filter: none; }
+    .browser-icon.unsupported img { filter: grayscale(100%) opacity(0.5); }
+    .browser-version { font-weight: bold; }
+
+    /* --- SETTINGS & MODAL (UNCHANGED) --- */
     .settings-panel { position: fixed; top: 20px; right: 20px; z-index: 100; }
-    #settingsToggle {
-        font-size: 1.5rem; background: none; border: 2px solid var(--border-color); cursor: pointer; color: var(--text-color);
-        width: 48px;  border-radius: 50%; display: flex; justify-content: center; align-items: center;
-        transition: all var(--transition-speed);
-    }
+    #settingsToggle { font-size: 1.5rem; background: none; border: 2px solid var(--border-color); cursor: pointer; color: var(--text-color); width: 48px; height: 48px; border-radius: 50%; display: flex; justify-content: center; align-items: center; transition: all var(--transition-speed); }
     #settingsToggle:hover { background: rgba(255,255,255,0.1); transform: rotate(45deg); }
-    .settings-menu {
-      display: none; position: absolute; top: 60px; right: 0; padding: 1rem; background: var(--card-bg);
-      backdrop-filter: blur(var(--blur-strength)); border: 1px solid var(--border-color); border-radius: 10px; width: 220px;
-    }
+    .settings-menu { display: none; position: absolute; top: 60px; right: 0; padding: 1rem; background: var(--card-bg); backdrop-filter: blur(var(--blur-strength)); border: 1px solid var(--border-color); border-radius: 10px; width: 220px; }
     .settings-menu.active { display: block; }
     .setting-item { margin-bottom: 1rem; display: flex; flex-direction: column; align-items: flex-start; }
     .setting-item label { margin-bottom: 0.5rem; font-size: 0.9rem; }
     .checkbox-label { display: flex; align-items: center; cursor: pointer; }
-    
-    /* --- NEW: Custom Select Dropdown Style --- */
-    .select-wrapper {
-      position: relative;
-      width: 100%;
-      border-radius: 5px;
-      background: rgba(0,0,0,0.2);
-      border: 1px solid var(--border-color);
-    }
-    .select-wrapper::after {
-      content: '▼';
-      font-size: 0.8rem;
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      pointer-events: none;
-    }
-    .setting-item select {
-      width: 100%;
-      padding: 0.5rem;
-      border: none;
-      background: transparent;
-      color: var(--text-color);
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none;
-      cursor: pointer;
-    }
-    .setting-item select option { background: #333; color: white; } /* Style for dropdown options */
-
-    /* --- About Modal --- */
+    .select-wrapper { position: relative; width: 100%; border-radius: 5px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); }
+    .select-wrapper::after { content: '▼'; font-size: 0.8rem; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+    .setting-item select { width: 100%; padding: 0.5rem; border: none; background: transparent; color: var(--text-light); -webkit-appearance: none; -moz-appearance: none; appearance: none; cursor: pointer; }
+    .setting-item select option { background: #333; color: white; }
     .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); }
-    .modal-content {
-      background: var(--card-bg); backdrop-filter: blur(var(--blur-strength)); border: 1px solid var(--border-color);
-      margin: 15% auto; padding: 2rem; border-radius: var(--card-radius); width: 80%; max-width: 500px;
-      text-align: center; position: relative;
-    }
+    .modal-content { background: var(--card-bg); backdrop-filter: blur(var(--blur-strength)); border: 1px solid var(--border-color); margin: 15% auto; padding: 2rem; border-radius: var(--card-radius); width: 80%; max-width: 600px; text-align: center; position: relative; }
     .close-btn { color: var(--text-color); position: absolute; top: 10px; right: 20px; font-size: 28px; font-weight: bold; cursor: pointer; }
   </style>
 </head>
@@ -135,12 +125,16 @@
 
   <div class="container">
     <h1 data-i18n-key="title">Baseline Analyzer</h1>
-    <p data-i18n-key="description">Paste your CSS or JavaScript code below. I'll check which new features you're using and if they're safe to use.</p>
+    <p data-i18n-key="description">Paste your CSS or JavaScript. The analyzer will dynamically detect features, check their Baseline status, and show detailed browser support.</p>
     <textarea id="codeInput" data-i18n-key="placeholder" placeholder="e.g.,
 .card:has(img) {
+  background-color: transparent;
   container-type: inline-size;
+  text-wrap: balance;
 }
-const newArr = oldArr.toSorted();"></textarea>
+const newArr = oldArr.toSorted();
+const popover = document.getElementById('my-popover');
+popover.showPopover();"></textarea>
     <button id="analyzeBtn" onclick="analyzeCode()" data-i18n-key="button_analyze">Analyze Code</button>
     <div id="results"></div>
   </div>
@@ -150,29 +144,14 @@ const newArr = oldArr.toSorted();"></textarea>
     <div id="settingsMenu" class="settings-menu">
       <div class="setting-item">
         <label for="langSelect" data-i18n-key="settings_language">Language</label>
-        <div class="select-wrapper">
-          <select id="langSelect">
-            <option value="en">English</option>
-            <option value="zh-Hant">繁體中文</option>
-          </select>
-        </div>
+        <div class="select-wrapper"><select id="langSelect"><option value="en">English</option><option value="zh-Hant">繁體中文</option></select></div>
       </div>
       <div class="setting-item">
         <label for="themeSelect" data-i18n-key="settings_theme">Theme</label>
-        <div class="select-wrapper">
-          <select id="themeSelect">
-            <option value="default" data-i18n-key="theme_default">Pastel Dream</option>
-            <option value="night" data-i18n-key="theme_night">Night Mode</option>
-            <option value="colorblind" data-i18n-key="theme_colorblind">High Contrast</option>
-            <option value="y2k" data-i18n-key="theme_y2k">Y2K Pixel</option>
-          </select>
-        </div>
+        <div class="select-wrapper"><select id="themeSelect"><option value="default" data-i18n-key="theme_default">Pastel Dream</option><option value="night" data-i18n-key="theme_night">Night Mode</option><option value="colorblind" data-i18n-key="theme_colorblind">High Contrast</option><option value="y2k" data-i18n-key="theme_y2k">Y2K Pixel</option></select></div>
       </div>
       <div class="setting-item">
-        <label class="checkbox-label">
-          <input type="checkbox" id="largeTextToggle">
-          <span data-i18n-key="settings_large_text" style="margin-left: 8px;">Larger Text</span>
-        </label>
+        <label class="checkbox-label"><input type="checkbox" id="largeTextToggle"><span data-i18n-key="settings_large_text" style="margin-left: 8px;">Larger Text</span></label>
       </div>
       <hr style="border-color: var(--border-color); opacity: 0.5;">
       <button id="aboutBtn" style="width: 100%; margin-top: 0.5rem; font-size: 0.9rem; padding: 0.5rem;" data-i18n-key="settings_about">About this Project</button>
@@ -191,65 +170,37 @@ const newArr = oldArr.toSorted();"></textarea>
     const translations = {
       'en': {
         title: 'Baseline Analyzer',
-        description: "Paste your CSS or JavaScript code below. I'll check which new features you're using and if they're safe to use.",
-        placeholder: "e.g.,\n.card:has(img) {\n  container-type: inline-size;\n}\nconst newArr = oldArr.toSorted();",
-        button_analyze: 'Analyze Code',
-        button_analyzing: 'Analyzing...',
-        results_header: 'Analysis Report:',
-        status_widely: 'Widely Available',
-        status_newly: 'Newly Available',
-        status_limited: 'Limited Support',
-        status_unknown: 'Unknown',
+        description: "Paste your CSS or JavaScript. The analyzer will dynamically detect features, check their Baseline status, and show detailed browser support.",
+        placeholder: "e.g.,\n.card:has(img) {\n  background-color: transparent;\n  container-type: inline-size;\n  text-wrap: balance;\n}\nconst newArr = oldArr.toSorted();\nconst popover = document.getElementById('my-popover');\npopover.showPopover();",
+        button_analyze: 'Analyze Code', button_analyzing: 'Analyzing...', results_header: 'Analysis Report:',
+        status_widely: 'Widely Available', status_newly: 'Newly Available', status_limited: 'Limited Support', status_unknown: 'API Not Found',
         feedback_no_code: "Hey, you need to write something for me to analyze!",
-        feedback_no_features: "Looks like solid, classic code! No new Baseline features were detected.", // UPDATED TEXT
-        feedback_loading: "Infiltrating the data servers...",
-        settings_language: 'Language',
-        settings_theme: 'Theme',
-        settings_large_text: 'Larger Text',
-        settings_about: 'About this Project',
-        theme_default: 'Pastel Dream',
-        theme_night: 'Night Mode',
-        theme_colorblind: 'High Contrast',
-        theme_y2k: 'Y2K Pixel',
+        feedback_no_features: "Looks like solid, classic code! No new Baseline features were detected.",
+        feedback_loading: "Scanning code and querying the database...",
+        settings_language: 'Language', settings_theme: 'Theme', settings_large_text: 'Larger Text', settings_about: 'About this Project',
+        theme_default: 'Pastel Dream', theme_night: 'Night Mode', theme_colorblind: 'High Contrast', theme_y2k: 'Y2K Pixel',
         modal_title: 'About This Project',
-        modal_content: "This is a project created for the <strong>Baseline Tooling Hackathon</strong>, managed by Google and Devpost. It's designed to make it easier for developers to know which modern web features are safe to use based on Baseline data. Built with a lot of coffee and a looming deadline."
+        modal_content: "This is a project created for the <strong>Baseline Tooling Hackathon</strong>, managed by Google and Devpost. It's designed to make it easier for developers to know which modern web features are safe to use based on Baseline data. Built with a lot of coffee and a looming deadline.",
+        detail_label_support: "Browser Support", detail_label_baseline_date: "Became Baseline on"
       },
       'zh-Hant': {
-        title: '萬事屋 Baseline 分析',
-        description: "把你的 CSS 或 JavaScript 程式碼貼進來，在下我幫你看看哪些是新潮玩意兒，能不能安心用。",
-        placeholder: "例如：\n.card:has(img) {\n  container-type: inline-size;\n}\nconst newArr = oldArr.toSorted();",
-        button_analyze: '分析我的程式碼',
-        button_analyzing: '分析中...',
-        results_header: '分析報告：',
-        status_widely: '廣泛可用',
-        status_newly: '新晉可用',
-        status_limited: '限制使用',
-        status_unknown: '未知',
+        title: '萬事屋 Baseline 分析儀',
+        description: "把你的 CSS 或 JS 貼進來，分析儀會動態偵測新功能、檢查 Baseline 狀態，並顯示詳細的瀏覽器支援度。",
+        placeholder: "例如：\n.card:has(img) {\n  background-color: transparent;\n  container-type: inline-size;\n  text-wrap: balance;\n}\nconst newArr = oldArr.toSorted();\nconst popover = document.getElementById('my-popover');\npopover.showPopover();",
+        button_analyze: '分析我的程式碼', button_analyzing: '分析中...', results_header: '分析報告：',
+        status_widely: '廣泛可用', status_newly: '新晉可用', status_limited: '限制使用', status_unknown: '查無此功能',
         feedback_no_code: "喂，你倒是寫點東西啊，不然我分析空氣嗎？",
-        feedback_no_features: "沒發現什麼特別的新功能，你用的都是德川幕府時代的老技術啊。", // KEPT THE JOKE
-        feedback_loading: "正在潛入幕府資料庫偷情報...",
-        settings_language: '語言',
-        settings_theme: '主題風格',
-        settings_large_text: '放大文字',
-        settings_about: '關於此專案',
-        theme_default: '粉彩幻夢',
-        theme_night: '夜間模式',
-        theme_colorblind: '高對比度',
-        theme_y2k: 'Y2K 像素風',
+        feedback_no_features: "沒發現什麼特別的新功能，你用的都是德川幕府時代的老技術啊。",
+        feedback_loading: "正在掃描程式碼並拷問幕府資料庫...",
+        settings_language: '語言', settings_theme: '主題風格', settings_large_text: '放大文字', settings_about: '關於此專案',
+        theme_default: '粉彩幻夢', theme_night: '夜間模式', theme_colorblind: '高對比度', theme_y2k: 'Y2K 像素風',
         modal_title: '關於此專案',
-        modal_content: "這是為 <strong>Baseline Tooling Hackathon</strong> 建立的專案，由 Google 和 Devpost 主辦。旨在讓開發者能更容易地根據 Baseline 數據，了解哪些現代網頁功能可以安心使用。由大量的咖啡和瀕臨死線的壓力構成。"
+        modal_content: "這是為 <strong>Baseline Tooling Hackathon</strong> 建立的專案，由 Google 和 Devpost 主辦。旨在讓開發者能更容易地根據 Baseline 數據，了解哪些現代網頁功能可以安心使用。由大量的咖啡和瀕臨死線的壓力構成。",
+        detail_label_support: "瀏覽器支援", detail_label_baseline_date: "納入 Baseline 日期"
       }
     };
 
-    const featureMap = {
-      ':has(': 'css-has-selector', 'container-type': 'container-queries', 'container-name': 'container-queries',
-      '@container': 'container-queries', 'subgrid': 'subgrid', 'text-wrap: balance': 'css-text-wrap-balance',
-      'popover': 'popover-api', '@scope': 'css-cascade-scope', 'light-dark(': 'css-light-dark',
-      '.toSorted(': 'array-prototype-tosorted', '.toSpliced(': 'array-prototype-tospliced', '.with(': 'array-prototype-with',
-      'findLast(': 'array-prototype-findlast', 'findLastIndex(': 'array-prototype-findlastindex',
-      'Promise.withResolvers': 'promise-with-resolvers', 'Intl.Segmenter': 'intl-segmenter',
-    };
-
+    // --- DOM Elements ---
     const analyzeBtn = document.getElementById('analyzeBtn'), codeInput = document.getElementById('codeInput'),
           resultsDiv = document.getElementById('results'), settingsToggle = document.getElementById('settingsToggle'),
           settingsMenu = document.getElementById('settingsMenu'), langSelect = document.getElementById('langSelect'),
@@ -258,6 +209,7 @@ const newArr = oldArr.toSorted();"></textarea>
           closeModal = document.getElementById('closeModal');
     let currentLang = 'en';
 
+    // --- UI Functions (Localization, Theming) ---
     function setLanguage(lang) {
       currentLang = lang;
       document.documentElement.lang = lang.startsWith('zh') ? 'zh-Hant' : 'en';
@@ -270,19 +222,18 @@ const newArr = oldArr.toSorted();"></textarea>
       });
       localStorage.setItem('userLang', lang);
     }
-
     function applyTheme(theme) {
       document.body.className = '';
       document.body.classList.add(`theme-${theme}`);
       if (largeTextToggle.checked) document.body.classList.add('large-text');
       localStorage.setItem('userTheme', theme);
     }
-    
     function toggleLargeText() {
         document.body.classList.toggle('large-text', largeTextToggle.checked);
         localStorage.setItem('largeText', largeTextToggle.checked);
     }
 
+    // --- DYNAMIC ANALYSIS ENGINE ---
     async function analyzeCode() {
       const code = codeInput.value;
       if (!code.trim()) {
@@ -292,55 +243,129 @@ const newArr = oldArr.toSorted();"></textarea>
       analyzeBtn.disabled = true;
       analyzeBtn.textContent = translations[currentLang].button_analyzing;
       resultsDiv.innerHTML = `<p>${translations[currentLang].feedback_loading}</p>`;
-      const detectedFeatureIds = new Set(Object.keys(featureMap).filter(key => code.includes(key)).map(key => featureMap[key]));
-      if (detectedFeatureIds.size === 0) {
+      
+      const cssProperties = (code.match(/[a-zA-Z-]+(?=\s*:)/gi) || []);
+      const cssFunctions = (code.match(/:\w+[\w-]*\(/g) || []).map(f => f.slice(1, -1));
+      const jsMethods = (code.match(/\.\w+[\w-]*\s*\(/g) || []).map(m => m.slice(1, -1).trim());
+
+      const candidateFeatures = [...new Set([...cssProperties, ...cssFunctions, ...jsMethods])];
+      
+      if (candidateFeatures.length === 0) {
         resultsDiv.innerHTML = `<p>${translations[currentLang].feedback_no_features}</p>`;
         analyzeBtn.disabled = false;
         analyzeBtn.textContent = translations[currentLang].button_analyze;
         return;
       }
-      const featuresData = await Promise.all(Array.from(detectedFeatureIds).map(id => fetchFeatureStatus(id)));
-      renderResults(featuresData.filter(f => f));
+
+      const featurePromises = candidateFeatures.map(feature => fetchFeatureStatus(feature));
+      const featuresData = await Promise.all(featurePromises);
+      const detectedFeatures = featuresData.filter(f => f);
+
+      renderResults(detectedFeatures);
+      
       analyzeBtn.disabled = false;
       analyzeBtn.textContent = translations[currentLang].button_analyze;
     }
 
-    async function fetchFeatureStatus(featureId) {
+    async function fetchFeatureStatus(featureName) {
       try {
-        const url = `https://api.webstatus.dev/v1/features?q=${encodeURIComponent(`id:${featureId}`)}`;
-        const response = await fetch(url);
-        if (!response.ok) return { name: featureId, baseline: { status: 'unknown' } };
+        const encodedQuery = encodeURIComponent(featureName);
+        const targetUrl = `https://api.webstatus.dev/v1/features?q=${encodedQuery}`;
+        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+        
+        const response = await fetch(proxyUrl);
+        if (!response.ok) return null;
+
         const data = await response.json();
-        return (data.data && data.data.length > 0) ? data.data[0] : { name: featureId, baseline: { status: 'unknown' } };
+        return (data.data && data.data.length > 0) ? data.data[0] : null;
       } catch (error) {
-        console.error(`Fetch failed for ${featureId}`, error);
-        return { name: featureId, baseline: { status: 'unknown' } };
+        console.error(`Fetch failed for ${featureName}:`, error);
+        return null;
       }
     }
 
+    // --- FULLY REBUILT RESULTS RENDERING LOGIC ---
     function renderResults(features) {
+       if (features.length === 0) {
+        resultsDiv.innerHTML = `<p>${translations[currentLang].feedback_no_features}</p>`;
+        return;
+      }
+
       let html = `<h3>${translations[currentLang].results_header}</h3>`;
-      const statusOrder = { 'widely': 1, 'newly': 2, 'limited': 3, 'unknown': 4 };
-      features.sort((a, b) => statusOrder[a.baseline.status] - statusOrder[b.baseline.status]);
+      const statusOrder = { 'limited': 1, 'newly': 2, 'widely': 3, 'unknown': 4 };
+      
+      features.sort((a, b) => (statusOrder[a.baseline?.status] || 4) - (statusOrder[b.baseline?.status] || 4));
+
       features.forEach(feature => {
-        const status = feature.baseline.status;
+        const status = feature.baseline?.status || 'unknown';
         const statusKey = `status_${status}`;
         const statusText = translations[currentLang][statusKey] || translations[currentLang].status_unknown;
-        html += `<div class="result-item"><span class="feature-name">${feature.name}</span><span class="status-badge status-${status}">${statusText}</span></div>`;
+        
+        const baselineDate = feature.baseline?.low_date ? new Date(feature.baseline.low_date).toLocaleDateString(currentLang.replace('_', '-')) : 'N/A';
+
+        // --- FIXED: Browser Support Display Logic ---
+        const browsers = ['chrome', 'firefox', 'safari', 'edge'];
+        let browserHtml = '';
+        browsers.forEach(browserKey => {
+            const baselineStatus = feature.baseline?.status;
+            let isSupported = false;
+            let versionText = '✕'; // Default to unsupported
+            
+            // **CORE LOGIC FIX**: If a feature is Baseline (newly or widely), it IS supported.
+            // This overrides any missing individual browser data.
+            if (baselineStatus === 'widely' || baselineStatus === 'newly') {
+                isSupported = true;
+                const version = feature.support?.[browserKey]?.version_added;
+                // Show version if available, otherwise show a checkmark for universal support.
+                versionText = (typeof version === 'string' && version) ? version : '✓';
+            } else {
+                // For 'limited' or 'unknown' features, rely on specific browser data.
+                const support = feature.support?.[browserKey];
+                isSupported = support && (typeof support.version_added === 'string' || support.version_added === true);
+                if (isSupported) {
+                    versionText = typeof support.version_added === 'string' ? support.version_added : '✓';
+                }
+            }
+
+            const iconUrl = `https://raw.githubusercontent.com/alrra/browser-logos/main/src/${browserKey}/${browserKey}_48x48.png`;
+            
+            browserHtml += `
+              <div class="browser-icon ${isSupported ? 'supported' : 'unsupported'}">
+                <img src="${iconUrl}" alt="${browserKey} logo">
+                <span class="browser-version">${versionText}</span>
+              </div>
+            `;
+        });
+
+        html += `
+        <div class="result-item" data-feature-name="${feature.name}">
+          <div class="result-summary">
+            <span class="feature-name">${feature.name}</span>
+            <span class="status-badge status-${status}">${statusText}</span>
+          </div>
+          <div class="result-details">
+            <div class="detail-row">
+              <span class="detail-label">${translations[currentLang].detail_label_support}</span>
+              <div class="detail-content browser-support-grid">${browserHtml}</div>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">${translations[currentLang].detail_label_baseline_date}</span>
+              <div class="detail-content">${baselineDate}</div>
+            </div>
+          </div>
+        </div>`;
       });
       resultsDiv.innerHTML = html;
     }
     
+    // --- Event Listeners & Initialization ---
     document.addEventListener('DOMContentLoaded', () => {
       const savedLang = localStorage.getItem('userLang') || 'en';
       const savedTheme = localStorage.getItem('userTheme') || 'default';
       const savedLargeText = localStorage.getItem('largeText') === 'true';
-      langSelect.value = savedLang;
-      setLanguage(savedLang);
-      themeSelect.value = savedTheme;
-      applyTheme(savedTheme);
-      largeTextToggle.checked = savedLargeText;
-      toggleLargeText();
+      langSelect.value = savedLang; setLanguage(savedLang);
+      themeSelect.value = savedTheme; applyTheme(savedTheme);
+      largeTextToggle.checked = savedLargeText; toggleLargeText();
     });
     
     settingsToggle.addEventListener('click', () => settingsMenu.classList.toggle('active'));
@@ -352,6 +377,15 @@ const newArr = oldArr.toSorted();"></textarea>
     window.addEventListener('click', (e) => {
         if (e.target == aboutModal) aboutModal.style.display = 'none';
     });
+
+    resultsDiv.addEventListener('click', (e) => {
+      const summary = e.target.closest('.result-summary');
+      if (summary) {
+        const item = summary.closest('.result-item');
+        item.classList.toggle('active');
+      }
+    });
+
   </script>
 
 </body>
